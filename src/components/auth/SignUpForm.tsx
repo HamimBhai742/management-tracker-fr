@@ -1,10 +1,12 @@
 'use client';
 
+import { baseUrl } from '@/hooks/useAxiosSecure';
+import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 
 export default function SignUpForm() {
   const [formData, setFormData] = useState({
-    fullName: '',
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -19,8 +21,8 @@ export default function SignUpForm() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Full name is required';
+    if (!formData.name.trim()) {
+      newErrors.name = 'Full name is required';
     }
 
     if (!formData.email.trim()) {
@@ -47,18 +49,35 @@ export default function SignUpForm() {
     return Object.keys(newErrors).length === 0;
   };
 
+
+  const mutation = useMutation({
+    mutationFn: async (data: typeof formData) => {
+      const response = await fetch(`${baseUrl}/user/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setIsLoading(false);
+      console.log(data);
+    },
+    onError: (error) => {
+      setIsLoading(false);
+      console.log(error);
+    },
+  })
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setIsLoading(false);
-    console.log('Form submitted:', formData);
+    mutation.mutate(formData)
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +86,7 @@ export default function SignUpForm() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
@@ -78,24 +97,23 @@ export default function SignUpForm() {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Full Name */}
       <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-        <label htmlFor="fullName" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        <label htmlFor="name" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Full Name
         </label>
         <input
           type="text"
-          id="fullName"
-          name="fullName"
-          value={formData.fullName}
+          id="name"
+          name="name"
+          value={formData.name}
           onChange={handleChange}
-          className={`w-full px-4 py-3 rounded-xl border ${
-            errors.fullName
-              ? 'border-red-500 focus:ring-red-500'
-              : 'border-zinc-300 dark:border-zinc-700 focus:ring-blue-500'
-          } bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:ring-2 focus:outline-none transition-all duration-200`}
+          className={`w-full px-4 py-3 rounded-xl border ${errors.name
+            ? 'border-red-500 focus:ring-red-500'
+            : 'border-zinc-300 dark:border-zinc-700 focus:ring-blue-500'
+            } bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:ring-2 focus:outline-none transition-all duration-200`}
           placeholder="John Doe"
         />
-        {errors.fullName && (
-          <p className="text-sm text-red-500 animate-fade-in">{errors.fullName}</p>
+        {errors.name && (
+          <p className="text-sm text-red-500 animate-fade-in">{errors.name}</p>
         )}
       </div>
 
@@ -110,11 +128,10 @@ export default function SignUpForm() {
           name="email"
           value={formData.email}
           onChange={handleChange}
-          className={`w-full px-4 py-3 rounded-xl border ${
-            errors.email
-              ? 'border-red-500 focus:ring-red-500'
-              : 'border-zinc-300 dark:border-zinc-700 focus:ring-blue-500'
-          } bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:ring-2 focus:outline-none transition-all duration-200`}
+          className={`w-full px-4 py-3 rounded-xl border ${errors.email
+            ? 'border-red-500 focus:ring-red-500'
+            : 'border-zinc-300 dark:border-zinc-700 focus:ring-blue-500'
+            } bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:ring-2 focus:outline-none transition-all duration-200`}
           placeholder="john@example.com"
         />
         {errors.email && (
@@ -134,11 +151,10 @@ export default function SignUpForm() {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            className={`w-full px-4 py-3 rounded-xl border ${
-              errors.password
-                ? 'border-red-500 focus:ring-red-500'
-                : 'border-zinc-300 dark:border-zinc-700 focus:ring-blue-500'
-            } bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:ring-2 focus:outline-none transition-all duration-200`}
+            className={`w-full px-4 py-3 rounded-xl border ${errors.password
+              ? 'border-red-500 focus:ring-red-500'
+              : 'border-zinc-300 dark:border-zinc-700 focus:ring-blue-500'
+              } bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:ring-2 focus:outline-none transition-all duration-200`}
             placeholder="••••••••"
           />
           <button
@@ -175,11 +191,10 @@ export default function SignUpForm() {
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
-            className={`w-full px-4 py-3 rounded-xl border ${
-              errors.confirmPassword
-                ? 'border-red-500 focus:ring-red-500'
-                : 'border-zinc-300 dark:border-zinc-700 focus:ring-blue-500'
-            } bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:ring-2 focus:outline-none transition-all duration-200`}
+            className={`w-full px-4 py-3 rounded-xl border ${errors.confirmPassword
+              ? 'border-red-500 focus:ring-red-500'
+              : 'border-zinc-300 dark:border-zinc-700 focus:ring-blue-500'
+              } bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:ring-2 focus:outline-none transition-all duration-200`}
             placeholder="••••••••"
           />
           <button

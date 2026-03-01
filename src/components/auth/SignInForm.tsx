@@ -1,5 +1,6 @@
 'use client';
-
+import { baseUrl } from '@/hooks/useAxiosSecure';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
 export default function SignInForm() {
@@ -12,6 +13,7 @@ export default function SignInForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  // const axiosSecure = useAxiosSecure()
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -30,18 +32,39 @@ export default function SignInForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const mutation = useMutation({
+    mutationFn: async (data: typeof formData) => {
+      const res = await fetch(`${baseUrl}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+
+      const result = await res.json()
+      if (!res.ok) {
+        throw new Error(result.message)
+      }
+
+      return result
+    },
+    onSuccess: (data) => {
+      setIsLoading(false);
+      console.log('Login successful:', data);
+    },
+    onError: (error) => {
+      setIsLoading(false);
+      console.log('Login error:', error.message);
+    }
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
 
     setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setIsLoading(false);
-    console.log('Form submitted:', formData);
+    mutation.mutate(formData);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,7 +73,7 @@ export default function SignInForm() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
@@ -70,11 +93,10 @@ export default function SignInForm() {
           name="email"
           value={formData.email}
           onChange={handleChange}
-          className={`w-full px-4 py-3 rounded-xl border ${
-            errors.email
-              ? 'border-red-500 focus:ring-red-500'
-              : 'border-zinc-300 dark:border-zinc-700 focus:ring-blue-500'
-          } bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:ring-2 focus:outline-none transition-all duration-200`}
+          className={`w-full px-4 py-3 rounded-xl border ${errors.email
+            ? 'border-red-500 focus:ring-red-500'
+            : 'border-zinc-300 dark:border-zinc-700 focus:ring-blue-500'
+            } bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:ring-2 focus:outline-none transition-all duration-200`}
           placeholder="john@example.com"
         />
         {errors.email && (
@@ -94,11 +116,10 @@ export default function SignInForm() {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            className={`w-full px-4 py-3 rounded-xl border ${
-              errors.password
-                ? 'border-red-500 focus:ring-red-500'
-                : 'border-zinc-300 dark:border-zinc-700 focus:ring-blue-500'
-            } bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:ring-2 focus:outline-none transition-all duration-200`}
+            className={`w-full px-4 py-3 rounded-xl border ${errors.password
+              ? 'border-red-500 focus:ring-red-500'
+              : 'border-zinc-300 dark:border-zinc-700 focus:ring-blue-500'
+              } bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:ring-2 focus:outline-none transition-all duration-200`}
             placeholder="••••••••"
           />
           <button
