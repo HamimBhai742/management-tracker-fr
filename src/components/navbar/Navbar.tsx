@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
 export default function Navbar() {
@@ -18,8 +19,8 @@ export default function Navbar() {
 
   // Handle dark mode
   useEffect(() => {
-    const isDark = document.documentElement.classList.contains('dark') || 
-                   window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = document.documentElement.classList.contains('dark') ||
+      window.matchMedia('(prefers-color-scheme: dark)').matches;
     setIsDarkMode(isDark);
   }, []);
 
@@ -29,21 +30,14 @@ export default function Navbar() {
     document.documentElement.classList.toggle('dark', newMode);
   };
 
-  const navLinks = [
-    { name: 'Dashboard', href: '/dashboard/overview' },
-    { name: 'Projects', href: '/projects' },
-    { name: 'Tasks', href: '/tasks' },
-    { name: 'Team', href: '/team' },
-    { name: 'Reports', href: '/reports' },
-  ];
+
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
           ? 'bg-white/80 dark:bg-black/80 backdrop-blur-lg shadow-lg'
           : 'bg-white dark:bg-black'
-      }`}
+        }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -69,19 +63,6 @@ export default function Navbar() {
                 TaskFlow
               </span>
             </a>
-          </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200"
-              >
-                {link.name}
-              </a>
-            ))}
           </div>
 
           {/* Right side actions */}
@@ -124,70 +105,10 @@ export default function Navbar() {
             </button>
 
             {/* CTA Button - Desktop */}
-            <button className="hidden md:block px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg hover:scale-105 transition-all duration-200">
+            <Link href="/sign-up" className=" px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg hover:scale-105 transition-all duration-200">
               Get Started
-            </button>
-
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors duration-200"
-              aria-label="Toggle menu"
-            >
-              {isMenuOpen ? (
-                <svg
-                  className="w-6 h-6 text-zinc-700 dark:text-zinc-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="w-6 h-6 text-zinc-700 dark:text-zinc-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
-              )}
-            </button>
+            </Link>
           </div>
-        </div>
-      </div>
-
-      {/* Mobile menu */}
-      <div
-        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-          isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <div className="px-4 pt-2 pb-4 space-y-2 bg-white dark:bg-black border-t border-zinc-200 dark:border-zinc-800">
-          {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              className="block px-4 py-3 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {link.name}
-            </a>
-          ))}
-          <button className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all duration-200">
-            Get Started
-          </button>
         </div>
       </div>
     </nav>
