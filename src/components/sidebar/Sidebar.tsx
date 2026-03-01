@@ -96,7 +96,7 @@ export default function Sidebar() {
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
-            <Link href="/dashboard" className="flex items-center gap-3 group">
+            <Link href="/dashboard/overview" className="flex items-center gap-3 group">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center transform transition-transform group-hover:scale-110">
                 <svg
                   className="w-6 h-6 text-white"

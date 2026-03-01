@@ -30,7 +30,7 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    { name: 'Dashboard', href: '/dashboard' },
+    { name: 'Dashboard', href: '/dashboard/overview' },
     { name: 'Projects', href: '/projects' },
     { name: 'Tasks', href: '/tasks' },
     { name: 'Team', href: '/team' },
