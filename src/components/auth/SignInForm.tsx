@@ -1,7 +1,6 @@
 "use client";
 import { baseUrl } from '@/hooks/useAxiosSecure';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { useRouter } from 'next/router';
+import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 
 export default function SignInForm() {
@@ -14,7 +13,6 @@ export default function SignInForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter()
   // const axiosSecure = useAxiosSecure()
 
   const validateForm = () => {
@@ -54,7 +52,6 @@ export default function SignInForm() {
     onSuccess: (data) => {
       setIsLoading(false);
       document.cookie = `accessToken=${data.data.accessToken}; path=/; SameSite=Lax; Secure`;
-      router.push('/dashboard/overview');
       console.log('Login successful:', data);
     },
     onError: (error) => {
