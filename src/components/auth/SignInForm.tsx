@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { baseUrl } from '@/hooks/useAxiosSecure';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
