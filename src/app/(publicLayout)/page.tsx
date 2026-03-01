@@ -277,15 +277,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Footer placeholder */}
-      <footer className="py-12 border-t border-zinc-200 dark:border-zinc-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center text-zinc-600 dark:text-zinc-400">
-            <p>© 2026 TaskFlow. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
