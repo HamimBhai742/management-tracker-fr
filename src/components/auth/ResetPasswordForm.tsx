@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import {  useRouter, useSearchParams } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import { baseUrl } from '@/hooks/useAxiosSecure';
 
@@ -72,6 +72,7 @@ export default function ResetPasswordForm() {
         },
         onSuccess: (data) => {
             console.log(data)
+            router.push('/sign-in');
             setIsLoading(false);
             setIsSuccess(true);
         },
