@@ -51,7 +51,7 @@ export default function SignInForm() {
     },
     onSuccess: (data) => {
       setIsLoading(false);
-      document.cookie = `accessToken=${data.data.accessToken}; path=/; SameSite=None; Secure=false`;
+     document.cookie = `accessToken=${data.data.accessToken}; path=/; SameSite=Lax`;
       console.log('Login successful:', data);
     },
     onError: (error) => {
