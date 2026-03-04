@@ -1,1 +1,1 @@
-export const baseUrl="http://localhost:5001/api/v1";
+export const baseUrl="https://management-tracker.vercel.app/api/v1";
