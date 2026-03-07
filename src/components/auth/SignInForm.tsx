@@ -40,7 +40,6 @@ export default function SignInForm() {
     mutationFn: async (data: typeof formData) => {
       const res = await fetch(`${baseUrl}/auth/login`, {
         method: "POST",
-
         headers: {
           "Content-Type": "application/json",
         },
@@ -58,6 +57,9 @@ export default function SignInForm() {
     onSuccess: (data) => {
       setIsLoading(false);
       navigate.push("/dashboard/overview");
+      if (typeof window !== "undefined") {
+        document.cookie = `accessToken=${data.data.accessToken}; path=/; samesite=none; secure`;
+      }
       toast.success(`${data.message}`, {
         position: "top-center",
         autoClose: 3000,

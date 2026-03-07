@@ -1,7 +1,11 @@
 "use client";
 
+import { baseUrl } from "@/hooks/useAxiosSecure";
+import { useQuery } from "@tanstack/react-query";
+import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { Bounce, toast } from "react-toastify";
 
 export default function Navbar() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -22,6 +26,45 @@ export default function Navbar() {
     document.documentElement.classList.toggle("dark", newMode);
   };
 
+  let token = "";
+  if (typeof window !== "undefined") {
+    token = document.cookie.split("accessToken=")[1];
+  }
+  const { data, refetch } = useQuery({
+    queryKey: ["me"],
+    queryFn: async () => {
+      const res = await fetch(`${baseUrl}/auth/me`, {
+        method: "GET",
+        headers: {
+          Authrization: `${token}`,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+      const results = await res.json();
+      return results;
+    },
+  });
+
+  console.log(data);
+  const handleLogout = () => {
+    const token = document.cookie.split("accessToken=")[1];
+    if (token) {
+      document.cookie = "accessToken=; path=/; samesite=none; secure";
+      refetch();
+      toast.success("Logged out successfully", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+    }
+  };
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -96,12 +139,48 @@ export default function Navbar() {
             </button>
 
             {/* CTA Button - Desktop */}
-            <Link
-              href="/sign-up"
-              className=" px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg hover:scale-105 transition-all duration-200"
-            >
-              Get Started
-            </Link>
+            {data?.success ? (
+              <div className="dropdown dropdown-end">
+                <div
+                  tabIndex={0}
+                  role="button"
+                  className="btn btn-ghost btn-circle avatar"
+                >
+                  <div className="w-10 rounded-full">
+                    <Image
+                      alt="Tailwind CSS Navbar component"
+                      src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                      width={40}
+                      height={40}
+                    />
+                  </div>
+                </div>
+                <ul
+                  tabIndex={-1}
+                  className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
+                >
+                  <li>
+                    <a className="justify-between">
+                      Profile
+                      <span className="badge">New</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a>Settings</a>
+                  </li>
+                  <li>
+                    <button onClick={handleLogout}>Logout</button>
+                  </li>
+                </ul>
+              </div>
+            ) : (
+              <Link
+                href="/sign-up"
+                className=" px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg hover:scale-105 transition-all duration-200"
+              >
+                Get Started
+              </Link>
+            )}
           </div>
         </div>
       </div>
