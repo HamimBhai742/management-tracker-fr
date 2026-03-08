@@ -1,13 +1,18 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { baseUrl } from "@/hooks/useAxiosSecure";
 import { Bounce, toast } from "react-toastify";
 import { token } from "@/hooks/useToken";
 
-export default function CreateProjectForm() {
+interface EditProjectFormProps {
+  projectId: string;
+}
+
+export default function EditProjectForm({ projectId }: EditProjectFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -21,6 +26,47 @@ export default function CreateProjectForm() {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Fetch existing project data
+  const { data: projectData, isLoading: isFetching } = useQuery({
+    queryKey: ["project", projectId],
+    queryFn: async () => {
+      const res = await fetch(`${baseUrl}/project/${projectId}`, {
+        method: "GET",
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch project");
+      }
+
+      const result = await res.json();
+      return result.data;
+    },
+  });
+
+  // Populate form when data is loaded
+  useEffect(() => {
+    if (projectData) {
+      setFormData({
+        title: projectData.title || "",
+        description: projectData.description || "",
+        startDate: projectData.startDate
+          ? new Date(projectData.startDate).toISOString().split("T")[0]
+          : "",
+        endDate: projectData.endDate
+          ? new Date(projectData.endDate).toISOString().split("T")[0]
+          : "",
+        value: projectData.value || 0,
+        clientName: projectData.clientName || "",
+        status: projectData.status || "PLANNING",
+      });
+    }
+  }, [projectData]);
 
   const statuses = [
     { value: "PLANNING", label: "Planning", icon: "📋" },
@@ -77,11 +123,11 @@ export default function CreateProjectForm() {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
-  console.log(token, "eeee");
+
   const mutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      const res = await fetch(`${baseUrl}/project/create`, {
-        method: "POST",
+      const res = await fetch(`${baseUrl}/project/${projectId}`, {
+        method: "PATCH",
         headers: {
           Authorization: `${token}`,
           "Content-Type": "application/json",
@@ -98,10 +144,9 @@ export default function CreateProjectForm() {
       return result;
     },
     onSuccess: (data) => {
-      console.log(data)
       setIsLoading(false);
       router.push("/dashboard/projects");
-      toast.success(`${data.message}`, {
+      toast.success(`${data.message || "Project updated successfully"}`, {
         position: "top-center",
         autoClose: 3000,
         hideProgressBar: false,
@@ -114,9 +159,7 @@ export default function CreateProjectForm() {
       });
     },
     onError: (error) => {
-      console.log(error)
       setIsLoading(false);
-      console.log("Login error:", error.message);
       toast.error(`${error.message}`, {
         position: "top-center",
         autoClose: 3000,
@@ -137,13 +180,23 @@ export default function CreateProjectForm() {
     if (!validateForm()) return;
 
     setIsLoading(true);
-    console.log(Number(formData.value));
     mutation.mutate({ ...formData, value: Number(formData.value) });
   };
 
   const handleCancel = () => {
     router.push("/dashboard/projects");
   };
+
+  if (isFetching) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-zinc-600 dark:text-zinc-400">Loading project data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -451,7 +504,7 @@ export default function CreateProjectForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-xl hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-200"
+          className="flex-1 px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl font-semibold hover:shadow-xl hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-200"
         >
           {isLoading ? (
             <span className="flex items-center justify-center gap-2">
@@ -474,10 +527,10 @@ export default function CreateProjectForm() {
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 />
               </svg>
-              Creating Project...
+              Updating Project...
             </span>
           ) : (
-            "Create Project"
+            "Update Project"
           )}
         </button>
       </div>

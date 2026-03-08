@@ -1,6 +1,7 @@
 "use client";
 
 import { baseUrl } from "@/hooks/useAxiosSecure";
+import { token } from "@/hooks/useToken";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
@@ -26,25 +27,26 @@ export default function Navbar() {
     document.documentElement.classList.toggle("dark", newMode);
   };
 
-  let token = "";
-  if (typeof window !== "undefined") {
-    token = document.cookie.split("accessToken=")[1];
-  }
-  const { data, refetch } = useQuery({
+  const { data, refetch ,isLoading} = useQuery({
     queryKey: ["me"],
     queryFn: async () => {
       const res = await fetch(`${baseUrl}/auth/me`, {
         method: "GET",
         headers: {
-          Authrization: `${token}`,
+          Authorization: `${token}`,
           "Content-Type": "application/json",
         },
         credentials: "include",
       });
+
       const results = await res.json();
       return results;
     },
   });
+
+  if(isLoading){
+    return <h3></h3>
+  }
 
   console.log(data);
   const handleLogout = () => {
@@ -157,16 +159,12 @@ export default function Navbar() {
                 </div>
                 <ul
                   tabIndex={-1}
-                  className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
+                  className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-34 p-2 shadow"
                 >
                   <li>
-                    <a className="justify-between">
-                      Profile
-                      <span className="badge">New</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a>Settings</a>
+                    <Link href="/dashboard/overview" className="justify-between">
+                      Dashboard
+                    </Link>
                   </li>
                   <li>
                     <button onClick={handleLogout}>Logout</button>

@@ -58,7 +58,7 @@ export default function SignInForm() {
       setIsLoading(false);
       navigate.push("/dashboard/overview");
       if (typeof window !== "undefined") {
-        document.cookie = `accessToken=${data.data.accessToken}; path=/; samesite=none; secure`;
+        document.cookie = `accessToken=${data.data.accessToken}; path=/; samesite=none; secure; maxAge=${7 * 24 * 60 * 60}`;
       }
       toast.success(`${data.message}`, {
         position: "top-center",
